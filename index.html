@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kumon Level C — Latihan Perkalian & Pembagian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF6EC;
+    --paper-line:#E4DCC8;
+    --ink:#1F2A44;
+    --ink-soft:#6B7280;
+    --mustard:#E8A33D;
+    --coral:#E4572E;
+    --green:#4C9A6A;
+    --shadow: rgba(31,42,68,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: linear-gradient(180deg,#F1ECDD 0%, #E9E2CD 100%);
+    color:var(--ink);
+    font-family:'Atkinson Hyperlegible', sans-serif;
+    min-height:100vh;
+    padding: 28px 16px 60px;
+  }
+  .app{max-width:820px;margin:0 auto;}
+
+  header.hero{text-align:center;margin-bottom:22px;}
+  header.hero .kicker{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.78rem;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  header.hero h1{
+    font-family:'Fredoka',sans-serif;
+    font-weight:700;
+    font-size:2.1rem;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  header.hero h1 span{color:var(--coral);}
+  header.hero p{margin:0;color:var(--ink-soft);font-size:0.98rem;}
+
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:12px;
+    margin-bottom:18px;
+    padding:10px 16px;
+    background:#fff8ec;
+    border:1px solid var(--paper-line);
+    border-radius:14px;
+  }
+  .badge{
+    font-family:'Fredoka',sans-serif;font-weight:600;
+    background:var(--mustard);color:#3B2A0E;
+    padding:6px 14px;border-radius:999px;font-size:0.95rem;
+  }
+  .timer{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.25rem;}
+  .dots{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;}
+  .dot{
+    width:15px;height:15px;border-radius:50%;
+    background:var(--paper-line);border:2px solid transparent;
+    cursor:pointer;transition:transform .15s ease;
+  }
+  .dot:hover{transform:scale(1.25);}
+  .dot.current{border-color:var(--coral);background:#fff;}
+  .dot.done{background:var(--green);}
+
+  .stage-wrap{position:relative;padding-bottom:6px;}
+  .sheet-behind{
+    position:absolute;inset:0;
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:18px;
+  }
+  .sheet.card{
+    position:relative;z-index:5;
+    background:var(--paper);
+    background-image: repeating-linear-gradient(to bottom, transparent 0 41px, var(--paper-line) 41px 42px);
+    border:1px solid var(--paper-line);
+    border-radius:18px;
+    box-shadow:0 16px 32px var(--shadow);
+    padding:26px 26px 22px;
+    transition: transform .22s ease, opacity .22s ease;
+  }
+  .sheet.card.flip-out{transform:translateY(-10px) rotate(-0.6deg);opacity:0;}
+  .sheet.card.flip-in{animation:flipIn .28s ease;}
+  @keyframes flipIn{from{transform:translateY(10px) rotate(0.6deg);opacity:0;}to{transform:none;opacity:1;}}
+
+  .sheet-header{margin-bottom:14px;}
+  .sheet-header h2{
+    font-family:'Fredoka',sans-serif;font-weight:600;
+    font-size:1.35rem;margin:0 0 4px;
+  }
+  .sheet-header p{margin:0;color:var(--ink-soft);font-size:0.9rem;}
+
+  .instructions{
+    font-size:0.82rem;color:var(--ink-soft);
+    background:rgba(232,163,61,0.15);
+    border:1px dashed var(--mustard);
+    padding:8px 12px;border-radius:10px;margin-bottom:16px;
+  }
+
+  .problems-grid{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px;
+    margin-bottom:18px;
+  }
+  @media (max-width:560px){.problems-grid{grid-template-columns:1fr;}}
+
+  .problem{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    background:rgba(255,255,255,0.55);
+    border-radius:10px;padding:8px 10px;
+  }
+  .problem-index{
+    font-family:'JetBrains Mono',monospace;font-size:0.72rem;
+    color:var(--ink-soft);width:16px;
+  }
+  .eq{font-family:'JetBrains Mono',monospace;font-size:1.12rem;display:flex;gap:4px;align-items:center;}
+  .eq .num{min-width:2.2ch;text-align:right;display:inline-block;}
+  .eq .op{color:var(--ink-soft);}
+
+  input.ans{
+    width:4.4ch;font-family:'JetBrains Mono',monospace;font-size:1.08rem;
+    text-align:center;border:2px solid var(--paper-line);border-radius:8px;
+    padding:4px 2px;background:#fff;color:var(--ink);
+  }
+  input.ans:focus{outline:3px solid var(--mustard);outline-offset:1px;border-color:var(--mustard);}
+  input.ans.correct{border-color:var(--green);background:#EAF6EE;color:var(--green);}
+  input.ans.wrong{border-color:var(--coral);background:#FDEDE7;color:var(--coral);}
+  input.ans:disabled{opacity:0.9;}
+
+  .divmod{gap:6px;}
+  .ld{display:flex;flex-direction:column;align-items:flex-end;}
+  .ld input.quotient{margin-bottom:3px;}
+  .ld-row{display:flex;align-items:flex-start;font-family:'JetBrains Mono',monospace;font-size:1.1rem;}
+  .divisor{padding-right:6px;padding-top:3px;}
+  .bracket{border-top:3px solid var(--ink);border-left:3px solid var(--ink);padding:2px 8px 0 8px;}
+  .sisa-label{font-size:0.78rem;color:var(--ink-soft);}
+
+  .feedback{font-size:0.72rem;color:var(--coral);font-family:'JetBrains Mono',monospace;}
+
+  .actions{display:flex;flex-direction:column;gap:10px;align-items:flex-start;}
+  .btn{
+    font-family:'Fredoka',sans-serif;font-weight:600;font-size:0.98rem;
+    border:none;border-radius:999px;padding:11px 22px;cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 14px var(--shadow);}
+  .btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px;}
+  .btn.primary{background:var(--mustard);color:#3B2A0E;}
+  .btn.next{background:var(--green);color:#fff;}
+  .btn.ghost{background:transparent;border:2px solid var(--ink);color:var(--ink);}
+
+  .result-summary{font-family:'JetBrains Mono',monospace;font-size:0.9rem;}
+  .result-summary.ok{color:var(--green);}
+  .result-summary.retry{color:var(--coral);}
+
+  #finalScreen{
+    background:var(--paper);border:1px solid var(--paper-line);border-radius:18px;
+    box-shadow:0 16px 32px var(--shadow);padding:34px 28px;text-align:center;
+  }
+  #finalScreen h2{font-family:'Fredoka',sans-serif;font-size:1.8rem;margin:0 0 6px;}
+  #finalScreen .sub{color:var(--ink-soft);margin-bottom:20px;}
+  .stat-row{display:flex;justify-content:center;gap:28px;margin-bottom:22px;flex-wrap:wrap;}
+  .stat{font-family:'JetBrains Mono',monospace;}
+  .stat .n{font-size:1.6rem;font-weight:700;display:block;}
+  .stat .l{font-size:0.75rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.06em;}
+  table.recap{width:100%;border-collapse:collapse;margin-bottom:22px;font-size:0.88rem;}
+  table.recap th,table.recap td{padding:7px 10px;border-bottom:1px solid var(--paper-line);text-align:left;}
+  table.recap th{color:var(--ink-soft);font-weight:600;font-size:0.75rem;text-transform:uppercase;}
+
+  @media (prefers-reduced-motion: reduce){
+    .sheet.card, .sheet.card.flip-out, .sheet.card.flip-in{transition:none;animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="hero">
+    <div class="kicker">Media Latihan Mandiri</div>
+    <h1>Kumon <span>Level C</span> — Perkalian &amp; Pembagian</h1>
+    <p>8 lembar latihan, makin lama makin menantang. Kerjakan sampai semua benar sebelum lanjut!</p>
+  </header>
+
+  <div class="topbar">
+    <div class="badge" id="sheetLabel">Lembar C1</div>
+    <div class="timer" id="timer">⏱ 00:00</div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <div class="stage-wrap" id="stageWrap">
+    <div class="sheet-stack" id="stack"></div>
+    <div class="sheet card" id="sheetCard">
+      <div class="sheet-header">
+        <h2 id="stageTitle"></h2>
+        <p id="stageDesc"></p>
+      </div>
+      <div class="instructions">Isi semua jawaban, lalu tekan <strong>Periksa Jawaban</strong>. Yang salah akan ditandai merah — betulkan lagi sampai semuanya benar, baru boleh lanjut ke lembar berikutnya.</div>
+      <div class="problems-grid" id="problemsGrid"></div>
+      <div class="actions">
+        <button class="btn primary" id="checkBtn">Periksa Jawaban</button>
+        <div class="result-summary" id="resultSummary"></div>
+        <button class="btn next" id="nextBtn" style="display:none;">Lanjut ke Lembar Berikutnya →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="finalScreen" style="display:none;"></div>
+
+</div>
+
+<script>
+(function(){
+  function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+  function genMulSet(aMin,aMax,bMin,bMax,count){
+    const out=[];
+    for(let i=0;i<count;i++){
+      const a=randInt(aMin,aMax), b=randInt(bMin,bMax);
+      out.push({kind:'mul', a, b, answer:a*b});
+    }
+    return out;
+  }
+  function genDivSet(count){
+    const out=[];
+    for(let i=0;i<count;i++){
+      const b=randInt(2,9), q=randInt(1,9);
+      out.push({kind:'div', a:b*q, b, answer:q});
+    }
+    return out;
+  }
+  function genDivModSet(count,dividendMax){
+    const out=[];
+    for(let i=0;i<count;i++){
+      const b=randInt(2,9);
+      let a=randInt(Math.max(b+1,10), dividendMax);
+      const q=Math.floor(a/b), r=a%b;
+      out.push({kind:'divmod', a, b, q, r});
+    }
+    return out;
+  }
+  function genMixed(count){
+    const out=[];
+    for(let i=0;i<count;i++){
+      const roll=randInt(1,5);
+      if(roll===1) out.push(genMulSet(2,9,1,9,1)[0]);
+      else if(roll===2) out.push(genMulSet(10,60,2,9,1)[0]);
+      else if(roll===3) out.push(genDivSet(1)[0]);
+      else out.push(genDivModSet(1,80)[0]);
+    }
+    return out;
+  }
+
+  const STAGES=[
+    {title:'Perkalian Dasar 2–5', desc:'Kalikan bilangan 2 sampai 5 secepat dan setepat mungkin.', generate:()=>genMulSet(2,5,1,9,10)},
+    {title:'Perkalian Dasar 6–9', desc:'Sekarang giliran perkalian dengan bilangan 6 sampai 9.', generate:()=>genMulSet(6,9,1,9,10)},
+    {title:'Perkalian Dua Angka × Satu Angka', desc:'Kalikan bilangan dua angka dengan bilangan satu angka.', generate:()=>genMulSet(10,60,2,9,10)},
+    {title:'Perkalian Dua Angka × Dua Angka', desc:'Tingkat lanjut: dua bilangan dua angka dikalikan.', generate:()=>genMulSet(10,40,10,40,10)},
+    {title:'Pembagian Dasar (Fakta Pembagian)', desc:'Ingat kembali tabel perkalian untuk membagi dengan tepat.', generate:()=>genDivSet(10)},
+    {title:'Pembagian dengan Sisa', desc:'Tuliskan hasil bagi dan sisanya pada dua kotak yang tersedia.', generate:()=>genDivModSet(10,60)},
+    {title:'Pembagian Bersusun (Dua Angka)', desc:'Pembagian dengan bilangan yang dibagi hingga dua angka.', generate:()=>genDivModSet(10,90)},
+    {title:'Campuran — Ulasan Level C', desc:'Semua jenis soal bercampur. Ini ujian akhir Level C!', generate:()=>genMixed(10)}
+  ];
+
+  const state={
+    stageIdx:0, problems:[], results:new Array(STAGES.length).fill(null),
+    timerStart:0, timerHandle:null, firstCheckDone:false, firstCheckMistakes:0
+  };
+
+  const el={
+    sheetLabel:document.getElementById('sheetLabel'),
+    timer:document.getElementById('timer'),
+    dots:document.getElementById('dots'),
+    stack:document.getElementById('stack'),
+    sheetCard:document.getElementById('sheetCard'),
+    stageTitle:document.getElementById('stageTitle'),
+    stageDesc:document.getElementById('stageDesc'),
+    grid:document.getElementById('problemsGrid'),
+    checkBtn:document.getElementById('checkBtn'),
+    nextBtn:document.getElementById('nextBtn'),
+    resultSummary:document.getElementById('resultSummary'),
+    finalScreen:document.getElementById('finalScreen'),
+    stageWrap:document.getElementById('stageWrap')
+  };
+
+  function problemHTML(p, idx){
+    if(p.kind==='mul' || p.kind==='div'){
+      const opSym = p.kind==='mul' ? '×' : '÷';
+      return `<div class="problem" data-idx="${idx}">
+        <span class="problem-index">${idx+1}.</span>
+        <span class="eq"><span class="num">${p.a}</span><span class="op">${opSym}</span><span class="num">${p.b}</span><span class="op">=</span></span>
+        <input type="number" inputmode="numeric" class="ans single" data-idx="${idx}" aria-label="Jawaban soal ${idx+1}">
+        <span class="feedback" id="fb-${idx}"></span>
+      </div>`;
+    }
+    return `<div class="problem divmod" data-idx="${idx}">
+      <span class="problem-index">${idx+1}.</span>
+      <div class="ld">
+        <input type="number" inputmode="numeric" class="ans quotient" data-idx="${idx}" aria-label="Hasil bagi soal ${idx+1}">
+        <div class="ld-row">
+          <span class="divisor">${p.b}</span>
+          <span class="bracket"><span class="dividend">${p.a}</span></span>
+        </div>
+      </div>
+      <span class="sisa-label">sisa</span>
+      <input type="number" inputmode="numeric" class="ans remainder" data-idx="${idx}" aria-label="Sisa soal ${idx+1}">
+      <span class="feedback" id="fb-${idx}"></span>
+    </div>`;
+  }
+
+  function renderDots(){
+    el.dots.innerHTML='';
+    STAGES.forEach((s,i)=>{
+      const d=document.createElement('div');
+      d.className='dot'+(i===state.stageIdx?' current':'')+(state.results[i]?' done':'');
+      d.title='Lembar C'+(i+1)+': '+s.title;
+      d.addEventListener('click',()=>initStage(i));
+      el.dots.appendChild(d);
+    });
+  }
+
+  function renderStack(){
+    const completed=state.results.filter(Boolean).length;
+    const remaining=Math.max(0, Math.min(3, STAGES.length-completed-1));
+    let html='';
+    for(let i=remaining;i>=1;i--){
+      html+=`<div class="sheet-behind" style="transform:translate(${i*5}px,${i*5}px);opacity:${0.55-(i*0.1)};z-index:${1}"></div>`;
+    }
+    el.stack.innerHTML=html;
+  }
+
+  function formatTime(ms){
+    const totalSec=Math.floor(ms/1000);
+    const m=String(Math.floor(totalSec/60)).padStart(2,'0');
+    const s=String(totalSec%60).padStart(2,'0');
+    return m+':'+s;
+  }
+
+  function startTimer(){
+    clearInterval(state.timerHandle);
+    state.timerStart=Date.now();
+    el.timer.textContent='⏱ 00:00';
+    state.timerHandle=setInterval(()=>{
+      el.timer.textContent='⏱ '+formatTime(Date.now()-state.timerStart);
+    },250);
+  }
+  function stopTimer(){
+    clearInterval(state.timerHandle);
+    return Date.now()-state.timerStart;
+  }
+
+  function initStage(idx, animate){
+    state.stageIdx=idx;
+    state.problems=STAGES[idx].generate();
+    state.firstCheckDone=false;
+    state.firstCheckMistakes=0;
+
+    const render=()=>{
+      el.sheetLabel.textContent='Lembar C'+(idx+1);
+      el.stageTitle.textContent=STAGES[idx].title;
+      el.stageDesc.textContent=STAGES[idx].desc;
+      el.grid.innerHTML=state.problems.map(problemHTML).join('');
+      el.checkBtn.style.display='inline-block';
+      el.checkBtn.textContent='Periksa Jawaban';
+      el.nextBtn.style.display='none';
+      el.resultSummary.textContent='';
+      el.resultSummary.className='result-summary';
+      el.finalScreen.style.display='none';
+      el.stageWrap.style.display='block';
+      renderDots();
+      renderStack();
+      startTimer();
+      if(animate){
+        el.sheetCard.classList.add('flip-in');
+        setTimeout(()=>el.sheetCard.classList.remove('flip-in'),300);
+      }
+    };
+
+    if(animate){
+      el.sheetCard.classList.add('flip-out');
+      setTimeout(()=>{ el.sheetCard.classList.remove('flip-out'); render(); },220);
+    } else {
+      render();
+    }
+  }
+
+  function checkAnswers(){
+    let mistakesNow=0, allCorrect=true;
+    state.problems.forEach((p,idx)=>{
+      const fb=document.getElementById('fb-'+idx);
+      fb.textContent='';
+      if(p.kind==='mul' || p.kind==='div'){
+        const input=document.querySelector(`input.single[data-idx="${idx}"]`);
+        const val=Number(input.value);
+        const correct = input.value!=='' && val===p.answer;
+        input.classList.remove('correct','wrong');
+        if(correct){
+          input.classList.add('correct');
+          input.disabled=true;
+        } else {
+          input.classList.add('wrong');
+          mistakesNow++; allCorrect=false;
+          fb.textContent='benar: '+p.answer;
+          input.value='';
+        }
+      } else {
+        const qInput=document.querySelector(`input.quotient[data-idx="${idx}"]`);
+        const rInput=document.querySelector(`input.remainder[data-idx="${idx}"]`);
+        const qOk = qInput.value!=='' && Number(qInput.value)===p.q;
+        const rOk = rInput.value!=='' && Number(rInput.value)===p.r;
+        qInput.classList.remove('correct','wrong');
+        rInput.classList.remove('correct','wrong');
+        if(qOk){ qInput.classList.add('correct'); qInput.disabled=true; } else { qInput.classList.add('wrong'); qInput.value=''; }
+        if(rOk){ rInput.classList.add('correct'); rInput.disabled=true; } else { rInput.classList.add('wrong'); rInput.value=''; }
+        if(!(qOk&&rOk)){
+          mistakesNow++; allCorrect=false;
+          fb.textContent='benar: '+p.q+' sisa '+p.r;
+        }
+      }
+    });
+
+    if(!state.firstCheckDone){
+      state.firstCheckDone=true;
+      state.firstCheckMistakes=mistakesNow;
+    }
+
+    if(allCorrect){
+      const elapsed=stopTimer();
+      state.results[state.stageIdx]={time:elapsed, mistakes:state.firstCheckMistakes};
+      el.checkBtn.style.display='none';
+      el.resultSummary.className='result-summary ok';
+      el.resultSummary.textContent='Lembar selesai! Waktu: '+formatTime(elapsed)+' · Kesalahan awal: '+state.firstCheckMistakes;
+      el.nextBtn.style.display='inline-block';
+      el.nextBtn.textContent = state.stageIdx===STAGES.length-1 ? 'Lihat Hasil Akhir →' : 'Lanjut ke Lembar Berikutnya →';
+      renderDots();
+      renderStack();
+    } else {
+      el.checkBtn.textContent='Periksa Lagi';
+      el.resultSummary.className='result-summary retry';
+      el.resultSummary.textContent=(10-mistakesNow)+' dari 10 benar. Perbaiki kotak merah, lalu periksa lagi.';
+      const firstWrong=document.querySelector('.ans.wrong');
+      if(firstWrong) firstWrong.focus();
+    }
+  }
+
+  function showFinalScreen(){
+    el.stageWrap.style.display='none';
+    const totalTime=state.results.reduce((s,r)=>s+(r?r.time:0),0);
+    const totalMistakes=state.results.reduce((s,r)=>s+(r?r.mistakes:0),0);
+    const rows=STAGES.map((s,i)=>{
+      const r=state.results[i];
+      return `<tr><td>C${i+1} — ${s.title}</td><td>${r?formatTime(r.time):'-'}</td><td>${r?r.mistakes:'-'}</td></tr>`;
+    }).join('');
+    el.finalScreen.innerHTML=`
+      <h2>🎉 Level C Selesai!</h2>
+      <p class="sub">Kerja bagus menyelesaikan semua 8 lembar sampai benar semua.</p>
+      <div class="stat-row">
+        <div class="stat"><span class="n">${formatTime(totalTime)}</span><span class="l">Total Waktu</span></div>
+        <div class="stat"><span class="n">${totalMistakes}</span><span class="l">Total Kesalahan Awal</span></div>
+        <div class="stat"><span class="n">${STAGES.length}</span><span class="l">Lembar Tuntas</span></div>
+      </div>
+      <table class="recap">
+        <thead><tr><th>Lembar</th><th>Waktu</th><th>Kesalahan Awal</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <button class="btn primary" id="restartBtn">Ulangi Level C dari Awal</button>
+    `;
+    el.finalScreen.style.display='block';
+    document.getElementById('restartBtn').addEventListener('click',()=>location.reload());
+  }
+
+  el.checkBtn.addEventListener('click',checkAnswers);
+  el.nextBtn.addEventListener('click',()=>{
+    if(state.stageIdx===STAGES.length-1){
+      showFinalScreen();
+    } else {
+      initStage(state.stageIdx+1, true);
+    }
+  });
+
+  initStage(0,false);
+})();
+</script>
+</body>
+</html>
